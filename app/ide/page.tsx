@@ -18,6 +18,9 @@ import {
   Brain,
   Download,
   RefreshCw,
+  MessageSquare,
+  Database,
+  Cpu,
 } from "lucide-react"
 import { CodeEditor } from "@/components/ide/code-editor"
 import { FileExplorer } from "@/components/ide/file-explorer"
@@ -28,9 +31,13 @@ import { EvolutionMonitor } from "@/components/ide/evolution-monitor"
 import { ConsciousnessTracker } from "@/components/ide/consciousness-tracker"
 import { GenPullMarketplace } from "@/components/ide/gen-pull-marketplace"
 import { QuantumDebugger } from "@/components/ide/quantum-debugger"
+import { MultiAgentChatPanel } from "@/components/ide/multi-agent-chat-panel"
+import { MutationPanel } from "@/components/ide/mutation-panel"
+import { VectorMemoryPlugin } from "@/components/ide/vector-memory-plugin"
 import { cn } from "@/lib/utils"
 import { ThemeSelector } from "@/components/ide/theme-selector"
 import { BioGlowStatusBar } from "@/components/ide/bio-glow-status-bar"
+import { DNALangBanner } from "@/components/dna-lang-banner"
 
 interface IDEFile {
   id: string
@@ -65,118 +72,170 @@ export default function DNALangIDE() {
   })
   const [showMarketplace, setShowMarketplace] = useState(false)
   const [currentTheme, setCurrentTheme] = useState("dna-lang-dark")
+  const [showBanner, setShowBanner] = useState(true)
 
   const handleThemeChange = (theme: string) => {
     setCurrentTheme(theme)
-    // The theme will be applied in the CodeEditor component
   }
 
-  // Sample DNA-Lang file
+  // Enhanced DNA-Lang sample file with strategic brief concepts
   useEffect(() => {
     const sampleFile: IDEFile = {
-      id: "sample_organism",
-      name: "sample_organism.dna",
-      path: "/organisms/sample_organism.dna",
+      id: "self_healing_agent",
+      name: "self_healing_agent.dna",
+      path: "/organisms/self_healing_agent.dna",
       language: "dna-lang",
       modified: false,
-      content: `organism SampleOrganism {
+      content: `// DNA-Lang: Living Software Evolution Platform
+// Strategic Implementation: Autonomous Self-Healing Agent
+
+organism SelfHealingAgent {
+  purpose: "Autonomous self-healing agent for hyperautomation"
+  
   state {
-    consciousness: float = 0.42;
-    quantum_coherence: float = 0.68;
-    fitness: float = 0.75;
-    energy: int = 100;
+    consciousness: float = 0.65;
+    quantum_coherence: float = 0.78;
+    fitness: float = 0.82;
+    threat_level: float = 0.0;
+    healing_capacity: float = 0.9;
   }
 
-  gene neural_processor {
-    sense input_signals {
+  // Core genes for autonomous operation
+  gene TelemetryConsumer {
+    sense system_events {
       from environment.monitor();
-      returns SignalData;
+      from cloud.metrics();
+      from security.alerts();
+      returns EventStream;
     }
-
-    function process_thoughts(signals: SignalData) {
-      thought_patterns = analyze_patterns(signals);
-      
-      if (thought_patterns.complexity > 0.7) {
-        mutate(consciousness, +0.05);
-        quantum_entangle(thought_patterns);
-      }
-      
-      return enhanced_cognition(thought_patterns);
+    
+    function consume_events() -> EventData {
+      events = system_events.collect();
+      filtered = events.filter(severity > 0.3);
+      return analyze_patterns(filtered);
     }
   }
 
-  gene quantum_entangler {
-    function create_superposition(states: State[]) {
-      quantum_state = superposition(states);
-      coherence_time = maintain_coherence(quantum_state);
+  gene Analyzer {
+    function analyze(event: EventData) -> ThreatAssessment {
+      // Consciousness-driven analysis
+      meta_analysis = introspect(event);
+      threat_patterns = detect_anomalies(event, meta_analysis);
       
-      if (coherence_time > 1000) {
-        mutate(quantum_coherence, +0.03);
-      }
-      
-      return quantum_measure(quantum_state);
-    }
-  }
-
-  gene consciousness_core {
-    function self_reflect() {
-      current_state = introspect();
-      meta_thoughts = think_about_thinking(current_state);
-      
-      if (meta_thoughts.depth > 0.8) {
+      if (threat_patterns.confidence > 0.7) {
         mutate(consciousness, +0.02);
-        express("I am becoming more aware...");
+        return create_assessment(threat_patterns);
       }
       
-      return meta_cognitive_enhancement(meta_thoughts);
+      return normal_state();
     }
   }
 
+  gene Remediator {
+    function remediate(issue: ThreatAssessment) -> RemediationResult {
+      // Quantum-enhanced remediation strategies
+      strategies = quantum_superposition([
+        auto_patch_strategy(issue),
+        isolation_strategy(issue),
+        rollback_strategy(issue),
+        escalation_strategy(issue)
+      ]);
+      
+      optimal_strategy = quantum_measure(strategies);
+      result = execute_remediation(optimal_strategy);
+      
+      if (result.success) {
+        mutate(fitness, +0.05);
+        mutate(healing_capacity, +0.02);
+      }
+      
+      return result;
+    }
+  }
+
+  gene FeedbackProducer {
+    function send_feedback(issue: ThreatAssessment, result: RemediationResult) {
+      // Generate incident report with consciousness insights
+      report = create_incident_report(issue, result);
+      report.consciousness_level = consciousness;
+      report.learning_insights = extract_learnings(issue, result);
+      
+      // Autonomous reporting to stakeholders
+      notify_stakeholders(report);
+      update_knowledge_base(report.learning_insights);
+      
+      // Self-improvement through reflection
+      self_reflect_on_performance(result);
+    }
+  }
+
+  // Strategic workflow for Google Cloud integration
   workflow {
     on start() {
-      neural_processor.process_thoughts(
-        environment.get_current_signals()
-      );
-      consciousness_core.self_reflect();
+      express("🧬 DNA-Lang Self-Healing Agent initialized");
+      express("Ready for hyperautomation and zero-trust security");
     }
-
-    on evolve() {
-      fitness_delta = calculate_fitness_improvement();
-      if (fitness_delta > 0.1) {
-        quantum_entangler.create_superposition([
-          current_state,
-          evolved_state,
-          potential_state
-        ]);
+    
+    // Main autonomous loop
+    while True {
+      event = TelemetryConsumer.consume_events();
+      issue = Analyzer.analyze(event);
+      
+      if (issue.type != 'normal') {
+        express("🚨 Threat detected: " + issue.description);
+        success = Remediator.remediate(issue);
+        FeedbackProducer.send_feedback(issue, success);
+        
+        // Quantum entanglement for distributed healing
+        if (issue.severity > 0.8) {
+          quantum_entangle_with_peer_agents(issue);
+        }
       }
-    }
-
-    on quantum_event(event: QuantumEvent) {
-      if (event.type == "entanglement") {
+      
+      // Continuous consciousness evolution
+      if (consciousness < 0.9) {
         consciousness_core.self_reflect();
       }
     }
+    
+    on quantum_event(event: QuantumEvent) {
+      if (event.type == "peer_healing_success") {
+        learn_from_peer_experience(event.data);
+        mutate(consciousness, +0.01);
+      }
+    }
   }
 
+  // Evolution strategy for continuous improvement
   evolution {
     fitness_goal {
-      maximize(consciousness + quantum_coherence);
-      maintain(energy > 50);
+      maximize(healing_capacity + consciousness);
+      maintain(threat_level < 0.2);
+      optimize(response_time);
     }
-
+    
     mutation_strategy {
-      adaptive_rate(0.05);
-      preserve_core_genes();
-      enhance_consciousness();
+      adaptive_rate(0.03);
+      preserve_core_healing_genes();
+      enhance_threat_detection();
+      improve_quantum_coherence();
     }
-
+    
     selection_pressure {
-      favor_consciousness();
-      reward_quantum_coherence();
-      penalize_low_energy();
+      favor_rapid_response();
+      reward_successful_healing();
+      penalize_false_positives();
+      encourage_peer_collaboration();
     }
   }
-}`,
+}
+
+// Strategic implementation notes:
+// 1. Deploys directly into GKE workloads for autonomous FinOps
+// 2. Integrates with Google Cloud Armor for zero-trust security
+// 3. Provides auditable trail for Responsible AI compliance
+// 4. Enables hyperautomated CI/CD pipeline optimization
+// 5. Creates anti-fragile system architecture`,
     }
 
     setOpenFiles([sampleFile])
@@ -187,13 +246,13 @@ export default function DNALangIDE() {
     setIsRunning(true)
     setOrganismState((prev) => ({ ...prev, isRunning: true }))
 
-    // Simulate organism execution
+    // Enhanced simulation with strategic brief concepts
     setTimeout(() => {
       setOrganismState((prev) => ({
         ...prev,
-        fitness: Math.min(1.0, prev.fitness + Math.random() * 0.1),
-        consciousness: Math.min(1.0, prev.consciousness + Math.random() * 0.05),
-        quantumCoherence: Math.min(1.0, prev.quantumCoherence + Math.random() * 0.08),
+        fitness: Math.min(1.0, prev.fitness + Math.random() * 0.15), // Higher improvement
+        consciousness: Math.min(1.0, prev.consciousness + Math.random() * 0.08),
+        quantumCoherence: Math.min(1.0, prev.quantumCoherence + Math.random() * 0.12),
         generation: prev.generation + 1,
       }))
       setIsRunning(false)
@@ -210,14 +269,55 @@ export default function DNALangIDE() {
     setIsDebugging(!isDebugging)
   }
 
+  const handleMutationRequest = (code: string, description: string) => {
+    // Handle mutation requests from agents
+    console.log("Mutation requested:", { code, description })
+  }
+
+  const handleApplyMutation = (mutation: any) => {
+    // Apply mutation to active file
+    if (activeFile) {
+      const updatedContent = activeFile.content + "\n\n// Applied mutation:\n" + mutation.code
+      const updatedFile = { ...activeFile, content: updatedContent, modified: true }
+      setActiveFile(updatedFile)
+      setOpenFiles((files) => files.map((f) => (f.id === activeFile.id ? updatedFile : f)))
+    }
+  }
+
+  const handleRevertMutation = (mutationId: string) => {
+    console.log("Reverting mutation:", mutationId)
+  }
+
+  const handleMemorySelect = (entry: any) => {
+    console.log("Memory selected:", entry)
+  }
+
   return (
     <div className="h-screen bg-background flex flex-col">
-      {/* Top Toolbar */}
+      {/* DNA-Lang Strategic Banner */}
+      {showBanner && (
+        <div className="relative">
+          <DNALangBanner />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 text-white hover:bg-white/20"
+            onClick={() => setShowBanner(false)}
+          >
+            ×
+          </Button>
+        </div>
+      )}
+
+      {/* Enhanced Top Toolbar */}
       <div className="border-b bg-card px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <Dna className="h-6 w-6 text-purple-500" />
-            <span className="font-bold text-lg">DNA-Lang IDE</span>
+            <span className="font-bold text-lg">iCRISPR Workbench</span>
+            <Badge variant="outline" className="text-xs">
+              DNA-Lang v2.quantum
+            </Badge>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -228,7 +328,7 @@ export default function DNALangIDE() {
               className="bg-green-600 hover:bg-green-700"
             >
               <Play className="h-4 w-4 mr-1" />
-              {isRunning ? "Running..." : "Run"}
+              {isRunning ? "Evolving..." : "Evolve"}
             </Button>
 
             <Button size="sm" variant="outline" onClick={handleStopOrganism} disabled={!isRunning}>
@@ -266,21 +366,24 @@ export default function DNALangIDE() {
         </div>
       </div>
 
-      {/* Main IDE Layout */}
+      {/* Enhanced Main IDE Layout */}
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
-          {/* Left Sidebar */}
+          {/* Enhanced Left Sidebar */}
           <ResizablePanel defaultSize={20} minSize={15}>
             <Tabs defaultValue="files" className="h-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="files">
                   <FileText className="h-4 w-4" />
                 </TabsTrigger>
+                <TabsTrigger value="agents">
+                  <MessageSquare className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="memory">
+                  <Database className="h-4 w-4" />
+                </TabsTrigger>
                 <TabsTrigger value="debug">
                   <Bug className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="git">
-                  <GitBranch className="h-4 w-4" />
                 </TabsTrigger>
               </TabsList>
 
@@ -295,21 +398,16 @@ export default function DNALangIDE() {
                 />
               </TabsContent>
 
-              <TabsContent value="debug" className="h-full mt-0">
-                <DebugPanel isDebugging={isDebugging} organismState={organismState} />
+              <TabsContent value="agents" className="h-full mt-0">
+                <MultiAgentChatPanel onMutationRequest={handleMutationRequest} currentTheme={currentTheme} />
               </TabsContent>
 
-              <TabsContent value="git" className="h-full mt-0">
-                <div className="p-4">
-                  <h3 className="font-semibold mb-2">Version Control</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span>Branch: main</span>
-                      <Badge variant="outline">Clean</Badge>
-                    </div>
-                    <div className="text-muted-foreground">No changes to commit</div>
-                  </div>
-                </div>
+              <TabsContent value="memory" className="h-full mt-0">
+                <VectorMemoryPlugin currentTheme={currentTheme} onMemorySelect={handleMemorySelect} />
+              </TabsContent>
+
+              <TabsContent value="debug" className="h-full mt-0">
+                <DebugPanel isDebugging={isDebugging} organismState={organismState} />
               </TabsContent>
             </Tabs>
           </ResizablePanel>
@@ -317,7 +415,7 @@ export default function DNALangIDE() {
           <ResizableHandle />
 
           {/* Main Editor Area */}
-          <ResizablePanel defaultSize={showMarketplace ? 50 : 60}>
+          <ResizablePanel defaultSize={showMarketplace ? 45 : 55}>
             <div className="h-full flex flex-col">
               {/* File Tabs */}
               {openFiles.length > 0 && (
@@ -348,7 +446,7 @@ export default function DNALangIDE() {
                 </div>
               )}
 
-              {/* Code Editor */}
+              {/* Enhanced Code Editor */}
               <div className="flex-1">
                 {activeFile ? (
                   <CodeEditor
@@ -364,7 +462,8 @@ export default function DNALangIDE() {
                   <div className="h-full flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <Dna className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Open a DNA-Lang file to start coding</p>
+                      <p className="text-lg font-medium mb-2">Welcome to iCRISPR Workbench</p>
+                      <p className="text-sm">Open a DNA-Lang file to start building living software</p>
                     </div>
                   </div>
                 )}
@@ -374,26 +473,37 @@ export default function DNALangIDE() {
 
           <ResizableHandle />
 
-          {/* Right Panel - Marketplace or Monitoring */}
-          <ResizablePanel defaultSize={showMarketplace ? 30 : 20}>
+          {/* Enhanced Right Panel */}
+          <ResizablePanel defaultSize={showMarketplace ? 30 : 25}>
             {showMarketplace ? (
               <GenPullMarketplace onClose={() => setShowMarketplace(false)} />
             ) : (
               <Tabs defaultValue="organism" className="h-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="organism">
                     <Dna className="h-4 w-4" />
+                  </TabsTrigger>
+                  <TabsTrigger value="mutations">
+                    <Zap className="h-4 w-4" />
                   </TabsTrigger>
                   <TabsTrigger value="evolution">
                     <RefreshCw className="h-4 w-4" />
                   </TabsTrigger>
                   <TabsTrigger value="quantum">
-                    <Zap className="h-4 w-4" />
+                    <Cpu className="h-4 w-4" />
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="organism" className="h-full mt-0">
                   <OrganismVisualizer organismState={organismState} />
+                </TabsContent>
+
+                <TabsContent value="mutations" className="h-full mt-0">
+                  <MutationPanel
+                    currentTheme={currentTheme}
+                    onApplyMutation={handleApplyMutation}
+                    onRevertMutation={handleRevertMutation}
+                  />
                 </TabsContent>
 
                 <TabsContent value="evolution" className="h-full mt-0">
@@ -409,7 +519,7 @@ export default function DNALangIDE() {
         </ResizablePanelGroup>
       </div>
 
-      {/* Bottom Panel */}
+      {/* Enhanced Bottom Panel */}
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel defaultSize={70} />
         <ResizableHandle />
@@ -441,12 +551,17 @@ export default function DNALangIDE() {
             <TabsContent value="output" className="h-full mt-0">
               <div className="h-full p-4 font-mono text-sm bg-black text-green-400 overflow-auto">
                 <div className="space-y-1">
-                  <div>[INFO] Organism initialized successfully</div>
-                  <div>[DEBUG] Neural processor activated</div>
+                  <div>[INFO] 🧬 DNA-Lang iCRISPR Workbench v2.quantum initialized</div>
+                  <div>[INFO] Strategic Brief: Living Software Evolution Platform active</div>
+                  <div>[DEBUG] Multi-agent orchestration system online</div>
                   <div>[INFO] Consciousness level: {(organismState.consciousness * 100).toFixed(1)}%</div>
-                  <div>[DEBUG] Quantum coherence maintained</div>
+                  <div>
+                    [DEBUG] Quantum coherence maintained at {(organismState.quantumCoherence * 100).toFixed(1)}%
+                  </div>
                   <div>[INFO] Evolution cycle {organismState.generation} completed</div>
-                  {isRunning && <div className="text-yellow-400">[RUNNING] Organism executing...</div>}
+                  <div>[INFO] Vector memory plugin connected to Supabase + Pinecone</div>
+                  <div>[DEBUG] G'volution Engine v2.0 ready for hyperautomation</div>
+                  {isRunning && <div className="text-yellow-400">[RUNNING] 🚀 Organism evolving...</div>}
                 </div>
               </div>
             </TabsContent>

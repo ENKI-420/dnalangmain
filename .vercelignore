@@ -1,0 +1,144 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build artifacts (keep .next for Vercel)
+dist/
+build/
+out/
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation source (keep built docs)
+docs/src/
+*.md.backup
+
+# Git
+.git/
+.gitignore
+
+# Deployment scripts (security)
+deploy.sh
+docker-compose.yml
+Dockerfile
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# DNA-Lang specific
+organisms/private/
+mutations/experimental/
+quantum-states/debug/
+
+# Large assets (use Vercel's asset optimization instead)
+public/videos/
+public/models/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.glb
+*.gltf
+
+# Backup files
+*.backup
+*.bak
+*.orig
+
+# Package manager locks (npm ci uses package-lock.json)
+yarn.lock
+pnpm-lock.yaml
+
+# TypeScript incremental compilation
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
