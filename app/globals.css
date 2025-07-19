@@ -71,7 +71,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-dna-bg text-dna-text overflow-x-hidden scroll-smooth;
   }
 }
 
@@ -93,4 +93,195 @@
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: var(--slate-600); /* Use Tailwind color variable */
+}
+
+/* Custom styles from HTML */
+.hero-gradient-text {
+  background: linear-gradient(90deg, #4285f4, #db4437, #f4b400, #0f9d58);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-title-gradient {
+  background: linear-gradient(90deg, #4285f4, #0f9d58);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-bg {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-bg:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(66, 133, 244, 0.4);
+  transform: translateY(-5px);
+}
+
+.card-bg.evolving {
+  animation: pulse-border 1.5s ease-out infinite;
+}
+
+.cta-button {
+  background: #4285f4;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+}
+
+.gemini-button {
+  background-color: rgba(66, 133, 244, 0.2);
+  border: 1px solid rgba(66, 133, 244, 0.5);
+  color: #e0e0e0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.gemini-button:hover {
+  background-color: rgba(66, 133, 244, 0.4);
+}
+
+.gemini-button:disabled {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #888;
+  cursor: not-allowed;
+}
+
+.generator-card {
+  background-color: rgba(66, 133, 244, 0.1);
+  border: 1px dashed rgba(66, 133, 244, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.generator-card:hover {
+  background-color: rgba(66, 133, 244, 0.2);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(3, 0, 20, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background-color: #0a061f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+.loader {
+  border: 4px solid #333;
+  border-top: 4px solid #4285f4;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+.synergy-select,
+.persona-input,
+.code-select,
+.console-input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  width: 100%;
+  color: #e0e0e0;
+}
+
+.persona-input::placeholder,
+.console-input::placeholder {
+  color: #888;
+}
+
+.code-view {
+  background-color: #0a061f;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chat-log {
+  height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.chat-message {
+  margin-bottom: 1rem;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-bubble {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  max-width: 80%;
+}
+
+.chat-bubble.user {
+  background-color: #4285f4;
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.chat-bubble.ai {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom-left-radius: 0.25rem;
 }

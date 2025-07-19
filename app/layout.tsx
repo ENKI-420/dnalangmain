@@ -1,30 +1,39 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Manrope, Roboto_Mono } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster" // Corrected import for shadcn/ui Toaster
 
-const inter = Inter({ subsets: ["latin"] })
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+})
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-roboto-mono",
+})
 
 export const metadata: Metadata = {
-  title: "DNA-Lang Meta-Automation v1.0",
-  description: "The Revolutionary Future of Programming - Bio-inspired, Quantum-enhanced, Consciousness-driven",
+  title: "DNAlang.io - The Operating System for Humanity",
+  description:
+    "Welcome to SH1FT. A unified digital reality where your genomic twin, personal wealth, and global impact evolve in symbiosis. This is the dawn of living software.",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {children}
-          <Toaster /> {/* Global Toaster for notifications */}
-        </ThemeProvider>
+    <html lang="en" className="scroll-smooth">
+      <head>{/* No need for meta charset and viewport, Next.js handles them */}</head>
+      <body
+        className={`${manrope.variable} ${robotoMono.variable} font-sans bg-dna-bg text-dna-text overflow-x-hidden`}
+      >
+        {children}
       </body>
     </html>
   )
