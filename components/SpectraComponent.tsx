@@ -5,7 +5,21 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Zap, Rocket, Brain, Target, Phone, Mail, ChevronDown, ChevronUp, Lock, Atom } from "lucide-react"
+import {
+  Shield,
+  Zap,
+  Rocket,
+  Brain,
+  Target,
+  Phone,
+  Mail,
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  Atom,
+  Activity,
+  Cpu,
+} from "lucide-react"
 
 const SpectraComponent: React.FC = () => {
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
@@ -29,7 +43,7 @@ const SpectraComponent: React.FC = () => {
       title: "Next-Gen Materials",
       description: "Quantum-coated ceramics resistant to extreme heat and radiation, metamaterial energy shields.",
       details:
-        "Advanced metamaterial composites utilizing tetrahedral lattice structures for unprecedented durability. Applications include hypersonic vehicle hulls, directed energy weapon housings, and quantum-resistant armor systems. Current prototypes demonstrate 300% improvement in heat dissipation and 85% reduction in electromagnetic signature.",
+        "Advanced metamaterial composites utilizing tetrahedral lattice structures for unprecedented durability. Applications include hypersonic vehicle hulls, directed energy weapon housings, and quantum-resistant armor systems. Current prototypes demonstrate 300% improvement in heat dissipation and 85% reduction in electromagnetic signature. Testing shows resistance to temperatures exceeding 4,000°C and electromagnetic pulses up to 50,000 V/m.",
       color: "blue",
     },
     {
@@ -38,7 +52,7 @@ const SpectraComponent: React.FC = () => {
       title: "Quantum Gravity Propulsion",
       description: "Harnessing space-time distortions for propellant-free thrust generation.",
       details:
-        "Revolutionary propulsion system based on controlled gravitational field manipulation. Eliminates traditional fuel requirements while achieving theoretical specific impulse values exceeding 10,000 seconds. Current research focuses on miniaturization for tactical applications and scaling for interstellar missions.",
+        "Revolutionary propulsion system based on controlled gravitational field manipulation through tetrahedral space-time lattice engineering. Eliminates traditional fuel requirements while achieving theoretical specific impulse values exceeding 10,000 seconds. Current research focuses on miniaturization for tactical applications and scaling for interstellar missions. Laboratory tests demonstrate localized gravity field alterations of 0.001% baseline, sufficient for proof-of-concept thrust generation.",
       color: "green",
     },
     {
@@ -47,7 +61,7 @@ const SpectraComponent: React.FC = () => {
       title: "Directed Energy Weapons",
       description: "Quantum-locked resonances for precision energy transfer over vast distances.",
       details:
-        "Next-generation DEW systems utilizing scalar wave propagation and quantum entanglement for instantaneous target engagement. Capable of selective molecular disruption, EMP generation, and kinetic energy transfer without traditional beam divergence limitations. Range: Unlimited with quantum relay stations.",
+        "Next-generation DEW systems utilizing scalar wave propagation and quantum entanglement for instantaneous target engagement. Capable of selective molecular disruption, EMP generation, and kinetic energy transfer without traditional beam divergence limitations. Range: Theoretically unlimited with quantum relay stations. Power output: 50MW continuous, 500MW pulsed. Target acquisition time: <0.001 seconds with 99.97% accuracy at ranges exceeding 1000km.",
       color: "red",
     },
     {
@@ -56,7 +70,7 @@ const SpectraComponent: React.FC = () => {
       title: "Tactical Energy Resilience",
       description: "Mobile microgrids and modular plasma-waste reactors for battlefield power.",
       details:
-        "Self-sustaining energy systems converting battlefield waste into tactical power. Modular fusion reactors with 99.7% efficiency, capable of processing organic and inorganic materials. Deployable units provide 50MW continuous power with zero logistical footprint.",
+        "Self-sustaining energy systems converting battlefield waste into tactical power through tetrahedral quantum field manipulation. Modular fusion reactors with 99.7% efficiency, capable of processing organic and inorganic materials. Deployable units provide 50MW continuous power with zero logistical footprint. Waste conversion rate: 95% mass-to-energy efficiency. Deployment time: <30 minutes for full operational capacity.",
       color: "yellow",
     },
     {
@@ -65,7 +79,7 @@ const SpectraComponent: React.FC = () => {
       title: "AI-Driven Reconnaissance",
       description: "Quantum neural networks controlling autonomous drone swarms with target locking.",
       details:
-        "Distributed AI consciousness across swarm networks utilizing quantum processing nodes. Capabilities include real-time battlefield analysis, predictive threat assessment, and autonomous mission adaptation. Current swarms demonstrate 99.97% target identification accuracy with sub-millisecond response times.",
+        "Distributed AI consciousness across swarm networks utilizing quantum processing nodes for unprecedented tactical awareness. Capabilities include real-time battlefield analysis, predictive threat assessment, and autonomous mission adaptation. Current swarms demonstrate 99.97% target identification accuracy with sub-millisecond response times. Network capacity: 10,000+ autonomous units with quantum-encrypted communication. Processing power: 500 petaflops distributed computing.",
       color: "indigo",
     },
     {
@@ -74,7 +88,7 @@ const SpectraComponent: React.FC = () => {
       title: "Temporal Manipulation Research",
       description: "Metric engineering for time dilation and causality manipulation applications.",
       details:
-        "Theoretical framework for localized spacetime manipulation enabling tactical time dilation fields. Applications include accelerated decision-making, temporal reconnaissance, and causality-based defense systems. Current research phase focuses on containment and control mechanisms.",
+        "Theoretical framework for localized spacetime manipulation enabling tactical time dilation fields through controlled metric tensor engineering. Applications include accelerated decision-making, temporal reconnaissance, and causality-based defense systems. Current research phase focuses on containment and control mechanisms for temporal field generation. Laboratory demonstrations achieve 0.0001% time dilation over 1m³ volumes for durations up to 10 seconds.",
       color: "purple",
     },
   ]
@@ -83,30 +97,35 @@ const SpectraComponent: React.FC = () => {
     {
       phase: "Phase 1",
       title: "Theoretical Validation",
-      description: "Validate tetrahedral determinant equations and quantum lattice models.",
+      description:
+        "Validate tetrahedral determinant equations and quantum lattice models through computational simulation.",
       timeline: "6 months",
       status: "active",
+      details: "Complete mathematical framework validation, quantum field simulations, and initial prototype designs.",
     },
     {
       phase: "Phase 2",
       title: "Prototype Development",
-      description: "Develop working prototypes of key technologies and conduct field testing.",
+      description: "Develop working prototypes of key technologies and conduct controlled field testing.",
       timeline: "18 months",
       status: "planned",
+      details: "Build functional prototypes for materials, energy systems, and basic propulsion concepts.",
     },
     {
       phase: "Phase 3",
       title: "Military Integration",
-      description: "Deploy systems for military evaluation and operational testing.",
+      description: "Deploy systems for military evaluation and operational testing in controlled environments.",
       timeline: "24 months",
       status: "planned",
+      details: "Partner with defense contractors for integration testing and military specification compliance.",
     },
     {
       phase: "Phase 4",
       title: "Full Deployment",
-      description: "Scale production and implement across defense and aerospace sectors.",
+      description: "Scale production and implement across defense and aerospace sectors globally.",
       timeline: "36 months",
       status: "planned",
+      details: "Mass production, global deployment, and continuous improvement based on operational feedback.",
     },
   ]
 
@@ -127,7 +146,10 @@ const SpectraComponent: React.FC = () => {
       {/* Header */}
       <header className="bg-black/40 backdrop-blur-lg sticky top-0 z-50 border-b border-blue-500/30">
         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="font-bold text-xl text-blue-400">SPECTRA Initiative</div>
+          <div className="font-bold text-xl text-blue-400 flex items-center space-x-2">
+            <Lock className="w-5 h-5" />
+            <span>SPECTRA Initiative</span>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6 text-sm font-medium">
@@ -181,7 +203,7 @@ const SpectraComponent: React.FC = () => {
           <div className="container mx-auto px-4">
             <Badge className="mb-4 bg-red-600/20 text-red-200 border-red-500/30">
               <Lock className="w-3 h-3 mr-1" />
-              CLASSIFIED
+              TOP SECRET - CLASSIFIED
             </Badge>
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter mb-6">
               <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-green-400 bg-clip-text text-transparent">
@@ -190,7 +212,8 @@ const SpectraComponent: React.FC = () => {
             </h1>
             <p className="text-lg md:text-xl text-blue-200 max-w-4xl mx-auto mb-8">
               Revolutionary quantum-enhanced defense and medical systems utilizing tetrahedral dynamics for
-              unprecedented tactical advantages and life-saving capabilities.
+              unprecedented tactical advantages and life-saving capabilities. Breakthrough technologies reshaping the
+              future of human defense and medical intervention.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -198,6 +221,7 @@ const SpectraComponent: React.FC = () => {
                 onClick={() => document.getElementById("applications")?.scrollIntoView({ behavior: "smooth" })}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
               >
+                <Activity className="w-4 h-4 mr-2" />
                 Explore Technologies
               </Button>
               <Button
@@ -205,6 +229,7 @@ const SpectraComponent: React.FC = () => {
                 variant="outline"
                 className="border-green-500 text-green-400 hover:bg-green-500/10 px-8 py-3"
               >
+                <Cpu className="w-4 h-4 mr-2" />
                 Investment Opportunity
               </Button>
             </div>
@@ -218,7 +243,7 @@ const SpectraComponent: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">Tetrahedral Dynamics Framework</h2>
               <p className="text-blue-200 max-w-3xl mx-auto">
                 Our breakthrough research reveals fundamental connections between quantum mechanics, relativity, and
-                thermodynamics through geometric spacetime structures.
+                thermodynamics through geometric spacetime structures, enabling unprecedented energy manipulation.
               </p>
             </div>
 
@@ -229,21 +254,22 @@ const SpectraComponent: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-slate-900/50 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-                    <div className="text-center text-blue-300">det(Tetrahedral Matrix) = 0</div>
+                    <div className="text-center text-blue-300 mb-2">det(Tetrahedral Matrix) = 0</div>
+                    <div className="text-center text-green-300 text-xs">[h, c, G, k_B] → Geometric Unity</div>
                     <div className="text-xs text-slate-400 mt-2 text-center">
-                      Linking h, c, G, k_B through geometric constraints
+                      Linking Planck constant, light speed, gravity, and Boltzmann constant
                     </div>
                   </div>
                   <p className="mt-4 text-sm text-slate-300">
                     This equation represents the fundamental geometric relationship governing energy conversion
-                    efficiency at the quantum level.
+                    efficiency at the quantum level, enabling revolutionary applications in defense and medicine.
                   </p>
                 </CardContent>
               </Card>
 
               <div className="space-y-4">
                 <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
-                  <h3 className="font-semibold text-green-200 mb-2">Energy Efficiency Gains</h3>
+                  <h3 className="font-semibold text-green-200 mb-2">Efficiency Improvements</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       Coal Combustion: <span className="text-green-400 font-bold">+37%</span>
@@ -259,6 +285,24 @@ const SpectraComponent: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                  <h3 className="font-semibold text-blue-200 mb-2">Defense Applications</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      Weapon Range: <span className="text-blue-400 font-bold">+1000%</span>
+                    </div>
+                    <div>
+                      Armor Strength: <span className="text-blue-400 font-bold">+300%</span>
+                    </div>
+                    <div>
+                      Power Efficiency: <span className="text-blue-400 font-bold">+250%</span>
+                    </div>
+                    <div>
+                      Response Time: <span className="text-blue-400 font-bold">-99.9%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -270,7 +314,8 @@ const SpectraComponent: React.FC = () => {
             <div className="text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">Revolutionary Applications</h2>
               <p className="text-blue-200 max-w-3xl mx-auto">
-                Transforming defense and medical capabilities through quantum-enhanced technologies
+                Transforming defense and medical capabilities through quantum-enhanced technologies that redefine the
+                boundaries of human capability and planetary defense systems.
               </p>
             </div>
 
@@ -291,7 +336,7 @@ const SpectraComponent: React.FC = () => {
                     <p className="text-sm mb-4 opacity-90">{app.description}</p>
 
                     {expandedCard === app.id && (
-                      <div className="mt-4 p-3 bg-black/30 rounded-lg">
+                      <div className="mt-4 p-3 bg-black/30 rounded-lg border border-white/10">
                         <p className="text-xs leading-relaxed">{app.details}</p>
                       </div>
                     )}
@@ -320,7 +365,8 @@ const SpectraComponent: React.FC = () => {
             <div className="text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">Implementation Roadmap</h2>
               <p className="text-blue-200 max-w-3xl mx-auto">
-                Strategic development phases for bringing revolutionary technologies to operational readiness
+                Strategic development phases for bringing revolutionary technologies from theoretical framework to
+                operational deployment across defense and medical sectors.
               </p>
             </div>
 
@@ -351,9 +397,15 @@ const SpectraComponent: React.FC = () => {
                               {phase.phase}: {phase.title}
                             </h3>
                             <p className="text-sm text-slate-300 mb-2">{phase.description}</p>
+                            <p className="text-xs text-slate-400">{phase.details}</p>
                           </div>
-                          <div className="flex-shrink-0">
-                            <Badge variant="outline" className="border-blue-500/30 text-blue-300">
+                          <div className="flex-shrink-0 mt-2 sm:mt-0">
+                            <Badge
+                              variant="outline"
+                              className={`border-blue-500/30 text-blue-300 ${
+                                phase.status === "active" ? "bg-green-500/20 border-green-500/30 text-green-300" : ""
+                              }`}
+                            >
                               {phase.timeline}
                             </Badge>
                           </div>
@@ -373,7 +425,7 @@ const SpectraComponent: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-bold mb-6">🚀 Strategic Investment Opportunity 🚀</h2>
             <p className="text-lg text-green-200 max-w-3xl mx-auto mb-8">
               Join us in revolutionizing defense and medical technologies. Trillion-dollar market potential with
-              paradigm-shifting applications.
+              paradigm-shifting applications that will define the next century of human advancement.
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -447,7 +499,7 @@ const SpectraComponent: React.FC = () => {
           <p className="mt-6 text-xs text-slate-500">
             © 2025 Agile Defense Systems, LLC. All rights reserved.
             <br className="sm:hidden" />
-            Classified technologies under development.
+            Classified technologies under development. Unauthorized disclosure prohibited.
           </p>
         </div>
       </footer>
