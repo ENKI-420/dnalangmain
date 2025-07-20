@@ -1,330 +1,389 @@
 "use client"
 
-import type React from "react"
-import { useRef, useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
+
+interface DeviceInfo {
+  isMobile: boolean
+  isLowPerformance: boolean
+  devicePixelRatio: number
+  cores: number
+}
 
 interface Particle {
   x: number
   y: number
   speed: number
-  char: string
+  term: string
   opacity: number
-  lastUpdate: number
+  active: boolean
 }
 
-const HeroAnimation: React.FC = () => {
+export default function HeroAnimation() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const threeContainerRef = useRef<HTMLDivElement>(null)
-  const [isMobile, setIsMobile] = useState(false)
-  const [isLowPerformance, setIsLowPerformance] = useState(false)
+  const threeCanvasRef = useRef<HTMLCanvasElement>(null)
+  const animationRef = useRef<number>()
+  const particlesRef = useRef<Particle[]>([])
+  const sceneRef = useRef<THREE.Scene>()
+  const rendererRef = useRef<THREE.WebGLRenderer>()
+  const helixRef = useRef<THREE.Group>()
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
+    isMobile: false,
+    isLowPerformance: false,
+    devicePixelRatio: 1,
+    cores: 4,
+  })
 
+  // Detect device capabilities
   useEffect(() => {
-    // Detect mobile and performance capabilities
-    const checkDevice = () => {
-      const mobile =
-        window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      setIsMobile(mobile)
+    const detectDevice = () => {
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        window.innerWidth < 768
+      const cores = navigator.hardwareConcurrency || 4
+      const devicePixelRatio = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
+      const isLowPerformance = isMobile && (cores < 4 || window.innerWidth < 480)
 
-      // Check for low-performance indicators
-      const lowPerf = mobile || navigator.hardwareConcurrency <= 2 || window.innerWidth < 480
-      setIsLowPerformance(lowPerf)
+      setDeviceInfo({
+        isMobile,
+        isLowPerformance,
+        devicePixelRatio,
+        cores,
+      })
     }
 
-    checkDevice()
-    window.addEventListener("resize", checkDevice)
-    return () => window.removeEventListener("resize", checkDevice)
+    detectDevice()
+    window.addEventListener("resize", detectDevice)
+    return () => window.removeEventListener("resize", detectDevice)
   }, [])
 
   useEffect(() => {
-    if (!canvasRef.current || !threeContainerRef.current) return
+    if (!canvasRef.current) return
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Performance-based settings
+    // Adaptive settings based on device
     const settings = {
-      particleCount: isLowPerformance ? 20 : isMobile ? 40 : 80,
-      animationFrameSkip: isLowPerformance ? 3 : isMobile ? 2 : 1,
-      helixDetail: isLowPerformance ? 20 : isMobile ? 40 : 80,
-      enableThreeJS: !isLowPerformance, // Disable 3D on very low-end devices
-      fontSize: isMobile ? 12 : 14,
-      trailLength: isLowPerformance ? 0.2 : 0.05,
+      particleCount: deviceInfo.isLowPerformance ? 20 : deviceInfo.isMobile ? 40 : 80,
+      targetFPS: deviceInfo.isMobile ? 30 : 60,
+      frameSkip: deviceInfo.isLowPerformance ? 3 : deviceInfo.isMobile ? 2 : 1,
+      trailOpacity: deviceInfo.isMobile ? 0.2 : 0.05,
+      fontSize: deviceInfo.isMobile ? 12 : 14,
     }
 
-    // Set canvas size with device pixel ratio consideration
-    const resizeCanvas = () => {
-      const dpr = isLowPerformance ? 1 : Math.min(window.devicePixelRatio || 1, 2)
-      const rect = canvas.getBoundingClientRect()
-
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      canvas.style.width = rect.width + "px"
-      canvas.style.height = rect.height + "px"
-
-      ctx.scale(dpr, dpr)
-    }
-    resizeCanvas()
-
-    // Optimized terms array
-    const terms = isLowPerformance
-      ? ["DNA", "RNA", "GENE", "CELL", "DEFENSE", "QUANTUM"]
+    // DNA/Defense terms - reduced for low performance
+    const terms = deviceInfo.isLowPerformance
+      ? ["DNA", "CRISPR", "QUANTUM", "SPECTRA", "DEFENSE"]
       : [
           "ATCG",
           "CRISPR",
-          "DNA",
-          "RNA",
+          "DNA-LANG",
+          "QUANTUM",
           "HELIX",
           "GENE",
-          "CELL",
-          "AMINO",
-          "DEFENSE",
-          "QUANTUM",
+          "MUTATION",
           "SPECTRA",
+          "DEFENSE",
           "TACTICAL",
           "PLASMA",
           "NEURAL",
-          "BIOTECH",
-          "GENOME",
-          "PROTEIN",
-          "ENZYME",
-          "VECTOR",
-          "MATRIX",
+          "ORGANISM",
+          "EVOLUTION",
+          "CONSCIOUSNESS",
+          "TETRAHEDRAL",
+          "SCALAR",
+          "PROPULSION",
         ]
 
-    // ASCII Rain particles with object pooling
-    const particles: Particle[] = []
-    const columns = Math.floor(canvas.width / (isMobile ? 25 : 20))
-
-    // Initialize particles
-    for (let i = 0; i < Math.min(columns, settings.particleCount); i++) {
-      particles.push({
-        x: i * (canvas.width / Math.min(columns, settings.particleCount)),
-        y: Math.random() * canvas.height,
-        speed: Math.random() * 2 + 0.5,
-        char: terms[Math.floor(Math.random() * terms.length)],
-        opacity: Math.random() * 0.8 + 0.2,
-        lastUpdate: 0,
-      })
-    }
-
-    // Three.js setup (only if performance allows)
-    let scene: THREE.Scene | null = null
-    let camera: THREE.PerspectiveCamera | null = null
-    let renderer: THREE.WebGLRenderer | null = null
-    let helixGroup: THREE.Group | null = null
-    let animationId: number
-
-    if (settings.enableThreeJS) {
-      scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-      renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: !isMobile,
-        powerPreference: isMobile ? "low-power" : "high-performance",
-      })
-
-      renderer.setSize(window.innerWidth, window.innerHeight)
-      renderer.setClearColor(0x000000, 0)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2))
-      threeContainerRef.current.appendChild(renderer.domElement)
-
-      // Simplified helix geometry for mobile
-      helixGroup = new THREE.Group()
-      const radius = isMobile ? 1.5 : 2
-      const height = isMobile ? 6 : 10
-      const turns = isMobile ? 2 : 4
-      const pointsPerTurn = settings.helixDetail / turns
-
-      const strand1Points = []
-      const strand2Points = []
-
-      for (let i = 0; i < settings.helixDetail; i++) {
-        const t = (i / settings.helixDetail) * turns * Math.PI * 2
-        const y = (i / settings.helixDetail) * height - height / 2
-
-        strand1Points.push(new THREE.Vector3(Math.cos(t) * radius, y, Math.sin(t) * radius))
-        strand2Points.push(new THREE.Vector3(Math.cos(t + Math.PI) * radius, y, Math.sin(t + Math.PI) * radius))
-      }
-
-      // Create simplified strand geometries
-      const strand1Geometry = new THREE.BufferGeometry().setFromPoints(strand1Points)
-      const strand2Geometry = new THREE.BufferGeometry().setFromPoints(strand2Points)
-
-      const strand1Material = new THREE.LineBasicMaterial({
-        color: 0x00ff88,
-        transparent: true,
-        opacity: isMobile ? 0.6 : 0.8,
-      })
-      const strand2Material = new THREE.LineBasicMaterial({
-        color: 0x0088ff,
-        transparent: true,
-        opacity: isMobile ? 0.6 : 0.8,
-      })
-
-      const strand1 = new THREE.Line(strand1Geometry, strand1Material)
-      const strand2 = new THREE.Line(strand2Geometry, strand2Material)
-
-      helixGroup.add(strand1)
-      helixGroup.add(strand2)
-
-      // Add fewer connecting base pairs for mobile
-      const connectionStep = isMobile ? 10 : 5
-      for (let i = 0; i < strand1Points.length; i += connectionStep) {
-        const baseGeometry = new THREE.BufferGeometry().setFromPoints([strand1Points[i], strand2Points[i]])
-        const baseMaterial = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: isMobile ? 0.2 : 0.4,
-        })
-        const basePair = new THREE.Line(baseGeometry, baseMaterial)
-        helixGroup.add(basePair)
-      }
-
-      scene.add(helixGroup)
-      camera.position.z = isMobile ? 6 : 8
-      camera.position.y = isMobile ? 1 : 2
-    }
-
-    // Optimized animation loop
     let frameCount = 0
     let lastTime = 0
-    const targetFPS = isMobile ? 30 : 60
-    const frameInterval = 1000 / targetFPS
+    const frameInterval = 1000 / settings.targetFPS
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = rect.width * deviceInfo.devicePixelRatio
+      canvas.height = rect.height * deviceInfo.devicePixelRatio
+      ctx.scale(deviceInfo.devicePixelRatio, deviceInfo.devicePixelRatio)
+      canvas.style.width = rect.width + "px"
+      canvas.style.height = rect.height + "px"
+    }
+
+    // Debounced resize
+    let resizeTimeout: NodeJS.Timeout
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(resizeCanvas, 100)
+    }
+
+    resizeCanvas()
+    window.addEventListener("resize", debouncedResize)
+
+    // Initialize particles with object pooling
+    const initializeParticles = () => {
+      particlesRef.current = []
+      for (let i = 0; i < settings.particleCount; i++) {
+        particlesRef.current.push({
+          x: (Math.random() * canvas.width) / deviceInfo.devicePixelRatio,
+          y: Math.random() * -500,
+          speed: deviceInfo.isMobile ? 1 + Math.random() * 2 : 2 + Math.random() * 3,
+          term: terms[Math.floor(Math.random() * terms.length)],
+          opacity: 0.3 + Math.random() * 0.7,
+          active: true,
+        })
+      }
+    }
+
+    initializeParticles()
 
     const animate = (currentTime: number) => {
-      animationId = requestAnimationFrame(animate)
-
-      // Frame rate limiting
-      if (currentTime - lastTime < frameInterval) return
-      lastTime = currentTime
+      if (currentTime - lastTime < frameInterval) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
 
       frameCount++
+      if (frameCount % settings.frameSkip !== 0) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
 
-      // Skip frames based on performance settings
-      if (frameCount % settings.animationFrameSkip !== 0) return
+      lastTime = currentTime
 
-      // Clear canvas with optimized trail effect
-      ctx.fillStyle = `rgba(0, 0, 0, ${settings.trailLength})`
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      // Check if tab is visible (battery optimization)
+      if (document.hidden) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
 
-      // Update and draw ASCII rain with reduced frequency
-      ctx.font = `${settings.fontSize}px monospace`
-      ctx.textAlign = "center"
+      const rect = canvas.getBoundingClientRect()
 
-      particles.forEach((particle, index) => {
-        // Update particle position
+      // Trail effect with adaptive opacity
+      ctx.fillStyle = `rgba(0, 0, 0, ${settings.trailOpacity})`
+      ctx.fillRect(0, 0, rect.width, rect.height)
+
+      // Update and render particles
+      ctx.font = `${settings.fontSize}px 'Courier New', monospace`
+
+      particlesRef.current.forEach((particle) => {
+        if (!particle.active) return
+
+        // Update position
         particle.y += particle.speed
 
-        if (particle.y > canvas.height + 20) {
-          particle.y = -20
-          particle.char = terms[Math.floor(Math.random() * terms.length)]
-          particle.opacity = Math.random() * 0.6 + 0.4
+        // Reset particle when it goes off screen (object reuse)
+        if (particle.y > rect.height + 50) {
+          particle.y = -50
+          particle.x = Math.random() * rect.width
+          particle.term = terms[Math.floor(Math.random() * terms.length)]
+          particle.opacity = 0.3 + Math.random() * 0.7
         }
 
-        // Simplified gradient for mobile
-        if (isMobile) {
-          ctx.fillStyle = `rgba(0, 255, 136, ${particle.opacity})`
-        } else {
-          const gradient = ctx.createLinearGradient(0, particle.y - 50, 0, particle.y + 50)
-          gradient.addColorStop(0, `rgba(0, 255, 136, 0)`)
-          gradient.addColorStop(0.5, `rgba(0, 255, 136, ${particle.opacity})`)
-          gradient.addColorStop(1, `rgba(0, 255, 136, 0)`)
-          ctx.fillStyle = gradient
-        }
-
-        ctx.fillText(particle.char, particle.x, particle.y)
+        // Render particle
+        ctx.fillStyle = deviceInfo.isMobile
+          ? `rgba(0, 255, 136, ${particle.opacity})` // Solid color for mobile
+          : `rgba(0, 255, 136, ${particle.opacity})`
+        ctx.fillText(particle.term, particle.x, particle.y)
       })
 
-      // Animate Three.js scene (if enabled)
-      if (settings.enableThreeJS && helixGroup && renderer && scene && camera) {
-        // Slower rotation for mobile to save battery
-        const rotationSpeed = isMobile ? 0.005 : 0.01
-        helixGroup.rotation.y += rotationSpeed
-        helixGroup.rotation.x = Math.sin(currentTime * 0.0005) * (isMobile ? 0.05 : 0.1)
-
-        renderer.render(scene, camera)
-      }
+      animationRef.current = requestAnimationFrame(animate)
     }
 
-    animate(0)
+    animationRef.current = requestAnimationFrame(animate)
 
-    // Optimized resize handler with debouncing
-    let resizeTimeout: NodeJS.Timeout
-    const handleResize = () => {
-      clearTimeout(resizeTimeout)
-      resizeTimeout = setTimeout(() => {
-        if (camera && renderer) {
-          camera.aspect = window.innerWidth / window.innerHeight
-          camera.updateProjectionMatrix()
-          renderer.setSize(window.innerWidth, window.innerHeight)
-        }
-        resizeCanvas()
-      }, 100)
-    }
-    window.addEventListener("resize", handleResize)
-
-    // Pause animation when tab is not visible (battery optimization)
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        cancelAnimationFrame(animationId)
-      } else {
-        animate(performance.now())
-      }
-    }
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-
-    // Cleanup
     return () => {
-      window.removeEventListener("resize", handleResize)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+      window.removeEventListener("resize", debouncedResize)
       clearTimeout(resizeTimeout)
-      cancelAnimationFrame(animationId)
-
-      if (threeContainerRef.current && renderer?.domElement) {
-        threeContainerRef.current.removeChild(renderer.domElement)
-      }
-
-      if (renderer) {
-        renderer.dispose()
-      }
     }
-  }, [isMobile, isLowPerformance])
+  }, [deviceInfo])
+
+  // 3D DNA Helix with adaptive complexity
+  useEffect(() => {
+    if (!threeCanvasRef.current || deviceInfo.isLowPerformance) return
+
+    const canvas = threeCanvasRef.current
+    const scene = new THREE.Scene()
+    sceneRef.current = scene
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
+    // Use low-power GPU preference on mobile
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: !deviceInfo.isMobile,
+      powerPreference: deviceInfo.isMobile ? "low-power" : "high-performance",
+    })
+    rendererRef.current = renderer
+
+    const resizeRenderer = () => {
+      const rect = canvas.getBoundingClientRect()
+      camera.aspect = rect.width / rect.height
+      camera.updateProjectionMatrix()
+      renderer.setSize(rect.width, rect.height, false)
+      renderer.setPixelRatio(deviceInfo.devicePixelRatio)
+    }
+
+    resizeRenderer()
+
+    // Create DNA helix with adaptive detail
+    const helixGroup = new THREE.Group()
+    helixRef.current = helixGroup
+    scene.add(helixGroup)
+
+    const helixPoints = deviceInfo.isMobile ? 20 : 40
+    const radius = 2
+    const height = 8
+
+    // Create helix strands with reduced geometry on mobile
+    const strandGeometry = new THREE.BufferGeometry()
+    const positions = []
+    const colors = []
+
+    for (let i = 0; i < helixPoints; i++) {
+      const t = (i / helixPoints) * Math.PI * 4
+      const y = (i / helixPoints) * height - height / 2
+
+      // Strand 1
+      positions.push(Math.cos(t) * radius, y, Math.sin(t) * radius)
+      colors.push(0, 1, 0.5) // Cyan
+
+      // Strand 2
+      positions.push(Math.cos(t + Math.PI) * radius, y, Math.sin(t + Math.PI) * radius)
+      colors.push(1, 0.4, 0) // Orange
+    }
+
+    strandGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3))
+    strandGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3))
+
+    const strandMaterial = new THREE.PointsMaterial({
+      size: deviceInfo.isMobile ? 0.1 : 0.15,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+    })
+    const strands = new THREE.Points(strandGeometry, strandMaterial)
+    helixGroup.add(strands)
+
+    // Add connecting base pairs (reduced on mobile)
+    const connectionInterval = deviceInfo.isMobile ? 10 : 5
+    for (let i = 0; i < helixPoints; i += connectionInterval) {
+      const t = (i / helixPoints) * Math.PI * 4
+      const y = (i / helixPoints) * height - height / 2
+
+      const connectionGeometry = new THREE.BufferGeometry()
+      const connectionPositions = [
+        Math.cos(t) * radius,
+        y,
+        Math.sin(t) * radius,
+        Math.cos(t + Math.PI) * radius,
+        y,
+        Math.sin(t + Math.PI) * radius,
+      ]
+      connectionGeometry.setAttribute("position", new THREE.Float32BufferAttribute(connectionPositions, 3))
+
+      const connectionMaterial = new THREE.LineBasicMaterial({
+        color: 0x00ff88,
+        transparent: true,
+        opacity: 0.3,
+      })
+      const connection = new THREE.Line(connectionGeometry, connectionMaterial)
+      helixGroup.add(connection)
+    }
+
+    camera.position.z = 8
+    camera.position.y = 2
+
+    const rotationSpeed = deviceInfo.isMobile ? 0.005 : 0.01
+    let frameCount = 0
+    const targetFPS = deviceInfo.isMobile ? 30 : 60
+    const frameSkip = deviceInfo.isMobile ? 2 : 1
+
+    const animate3D = () => {
+      frameCount++
+      if (frameCount % frameSkip !== 0) {
+        animationRef.current = requestAnimationFrame(animate3D)
+        return
+      }
+
+      // Pause animation when tab is hidden
+      if (document.hidden) {
+        animationRef.current = requestAnimationFrame(animate3D)
+        return
+      }
+
+      if (helixRef.current) {
+        helixRef.current.rotation.y += rotationSpeed
+        helixRef.current.rotation.x = Math.sin(Date.now() * 0.001) * 0.1
+      }
+
+      renderer.render(scene, camera)
+      animationRef.current = requestAnimationFrame(animate3D)
+    }
+
+    animate3D()
+
+    // Debounced resize for 3D
+    let resizeTimeout: NodeJS.Timeout
+    const debouncedResize3D = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(resizeRenderer, 100)
+    }
+
+    window.addEventListener("resize", debouncedResize3D)
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+      window.removeEventListener("resize", debouncedResize3D)
+      clearTimeout(resizeTimeout)
+
+      // Proper Three.js cleanup
+      scene.clear()
+      renderer.dispose()
+      strandGeometry.dispose()
+      strandMaterial.dispose()
+    }
+  }, [deviceInfo])
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Three.js DNA Helix - Only render if performance allows */}
-      {!isLowPerformance && <div ref={threeContainerRef} className="absolute inset-0" />}
-
-      {/* ASCII Rain Canvas */}
+    <div className="absolute inset-0 overflow-hidden">
+      {/* ASCII Rain Layer */}
       <canvas
         ref={canvasRef}
-        className={`absolute inset-0 ${isLowPerformance ? "opacity-80" : "opacity-60"}`}
+        className="absolute inset-0 w-full h-full"
         style={{
-          mixBlendMode: isLowPerformance ? "normal" : "screen",
-          width: "100%",
-          height: "100%",
+          mixBlendMode: deviceInfo.isLowPerformance ? "normal" : "screen",
+          opacity: deviceInfo.isMobile ? 0.6 : 0.8,
         }}
       />
 
-      {/* Simplified gradient overlay for mobile */}
-      <div
-        className={`absolute inset-0 ${
-          isMobile
-            ? "bg-gradient-to-b from-transparent via-black/10 to-black/40"
-            : "bg-gradient-to-b from-transparent via-black/20 to-black/60"
-        }`}
-      />
+      {/* 3D DNA Helix Layer - only on capable devices */}
+      {!deviceInfo.isLowPerformance && (
+        <canvas
+          ref={threeCanvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{
+            mixBlendMode: "screen",
+            opacity: deviceInfo.isMobile ? 0.4 : 0.6,
+          }}
+        />
+      )}
 
-      {/* Performance indicator for debugging */}
+      {/* Performance indicator (development only) */}
       {process.env.NODE_ENV === "development" && (
-        <div className="absolute top-4 right-4 text-xs text-white/50 bg-black/50 p-2 rounded">
-          {isMobile ? "Mobile" : "Desktop"} | {isLowPerformance ? "Low" : "High"} Performance
+        <div className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded text-xs">
+          <div>Device: {deviceInfo.isMobile ? "Mobile" : "Desktop"}</div>
+          <div>Performance: {deviceInfo.isLowPerformance ? "Low" : "Normal"}</div>
+          <div>Cores: {deviceInfo.cores}</div>
+          <div>DPR: {deviceInfo.devicePixelRatio}</div>
         </div>
       )}
     </div>
   )
 }
-
-export default HeroAnimation

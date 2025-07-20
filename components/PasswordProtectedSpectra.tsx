@@ -1,72 +1,50 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import {
-  Lock,
-  Shield,
-  AlertTriangle,
-  Phone,
-  Mail,
-  DollarSign,
-  Eye,
-  EyeOff,
-  Loader2,
-  CheckCircle,
-  XCircle,
-} from "lucide-react"
+import { Shield, Lock, Phone, Mail, DollarSign, AlertTriangle, Eye, EyeOff } from "lucide-react"
 import SpectraComponent from "./SpectraComponent"
 
-const PasswordProtectedSpectra: React.FC = () => {
+const CORRECT_PASSWORD = "SPECTRA-DEFENSE-2025"
+const MAX_ATTEMPTS = 3
+
+export default function PasswordProtectedSpectra() {
   const [password, setPassword] = useState("")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [attempts, setAttempts] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
-  const [isMobile, setIsMobile] = useState(false)
-
-  const CORRECT_PASSWORD = "SPECTRA-DEFENSE-2025"
-  const MAX_ATTEMPTS = 3
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+  const [isLocked, setIsLocked] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (attempts >= MAX_ATTEMPTS) {
-      setError("MAXIMUM ATTEMPTS EXCEEDED - SECURITY PROTOCOL ACTIVATED")
-      return
-    }
+    if (isLocked) return
 
     setIsLoading(true)
     setError("")
 
-    // Simulate authentication delay for security
+    // Simulate authentication delay (shorter on mobile)
+    const isMobile = window.innerWidth < 768
     await new Promise((resolve) => setTimeout(resolve, isMobile ? 1000 : 2000))
 
     if (password === CORRECT_PASSWORD) {
       setIsAuthenticated(true)
-      setError("")
     } else {
-      setAttempts((prev) => prev + 1)
-      setPassword("")
+      const newAttempts = attempts + 1
+      setAttempts(newAttempts)
 
-      if (attempts + 1 >= MAX_ATTEMPTS) {
-        setError("MAXIMUM ATTEMPTS EXCEEDED - CONTACT REQUIRED FOR ACCESS")
+      if (newAttempts >= MAX_ATTEMPTS) {
+        setIsLocked(true)
+        setError("MAXIMUM ATTEMPTS EXCEEDED - SECURITY PROTOCOL ACTIVATED")
       } else {
-        setError(`ACCESS DENIED - ${MAX_ATTEMPTS - (attempts + 1)} attempts remaining`)
+        setError(`ACCESS DENIED - ${MAX_ATTEMPTS - newAttempts} attempts remaining`)
       }
     }
 
@@ -77,225 +55,228 @@ const PasswordProtectedSpectra: React.FC = () => {
     return <SpectraComponent />
   }
 
-  const isLocked = attempts >= MAX_ATTEMPTS
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-black text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-red-500 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-blue-500 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-green-500 rounded-full blur-2xl animate-pulse delay-500" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Badge className="mb-4 bg-red-600/20 text-red-200 border-red-500/30 text-sm">
-            <Lock className="w-3 h-3 mr-1" />
-            CLASSIFIED ACCESS REQUIRED
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <Shield className="h-12 w-12 text-red-500 mr-4" />
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">CLASSIFIED ACCESS</h1>
+          </div>
+          <p className="text-xl text-slate-300">SPECTRA Defense Technologies</p>
+          <Badge variant="destructive" className="mt-2">
+            SECURITY CLEARANCE REQUIRED
           </Badge>
-
-          <h1 className={`font-extrabold tracking-tighter mb-4 ${isMobile ? "text-3xl" : "text-4xl md:text-6xl"}`}>
-            <span className="bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              SPECTRA DEFENSE SYSTEMS
-            </span>
-          </h1>
-
-          <p className={`text-red-200 max-w-3xl mx-auto ${isMobile ? "text-base" : "text-lg"}`}>
-            Revolutionary quantum-enhanced defense and medical technologies. Security clearance required for classified
-            technical specifications.
-          </p>
         </div>
 
-        <div className={`grid gap-8 ${isMobile ? "grid-cols-1" : "md:grid-cols-2"} items-start`}>
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Authentication Panel */}
-          <Card className="bg-black/60 border-red-500/30 backdrop-blur-lg">
+          <Card className="bg-slate-800/50 border-slate-600">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-red-200">
-                <Shield className="w-5 h-5" />
-                <span>Security Authentication</span>
+              <CardTitle className="flex items-center text-white">
+                <Lock className="h-5 w-5 mr-2" />
+                Security Clearance Code
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               {!isLocked ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-red-200">Access Code</label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter security clearance code"
-                        className="bg-black/40 border-red-500/30 text-white placeholder-red-300/50 pr-10"
-                        disabled={isLoading}
-                        autoComplete="off"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-red-300 hover:text-red-200"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter clearance code..."
+                      className="bg-slate-700 border-slate-600 text-white pr-10"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
 
                   <Button
                     type="submit"
+                    className="w-full bg-red-600 hover:bg-red-700"
                     disabled={isLoading || !password.trim()}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Authenticating...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 mr-2" />
-                        Authenticate
-                      </>
-                    )}
+                    {isLoading ? "AUTHENTICATING..." : "AUTHENTICATE"}
                   </Button>
                 </form>
               ) : (
-                <div className="text-center space-y-4">
-                  <XCircle className="w-16 h-16 text-red-500 mx-auto" />
-                  <h3 className="text-xl font-bold text-red-200">Access Locked</h3>
-                  <p className="text-red-300 text-sm">
-                    Security protocol activated. Contact required for access restoration.
-                  </p>
+                <div className="text-center p-6 bg-red-900/20 border border-red-500 rounded">
+                  <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                  <p className="text-red-400 font-bold">SECURITY LOCKOUT ACTIVATED</p>
+                  <p className="text-sm text-slate-400 mt-2">Contact authorized personnel for access restoration</p>
                 </div>
               )}
 
               {error && (
-                <div className="flex items-center space-x-2 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                  <p className="text-red-200 text-sm font-medium">{error}</p>
+                <div className="p-3 bg-red-900/20 border border-red-500 rounded">
+                  <p className="text-red-400 text-sm font-mono">{error}</p>
                 </div>
               )}
 
-              {/* Attempt Counter */}
-              <div className="flex justify-between items-center text-xs text-red-300">
-                <span>
-                  Attempts: {attempts}/{MAX_ATTEMPTS}
-                </span>
-                <span className="flex items-center space-x-1">
-                  {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => (
-                    <div key={i} className={`w-2 h-2 rounded-full ${i < attempts ? "bg-red-500" : "bg-red-500/20"}`} />
-                  ))}
-                </span>
+              <div className="text-xs text-slate-500 space-y-1">
+                <p>
+                  • Attempts: {attempts}/{MAX_ATTEMPTS}
+                </p>
+                <p>• Security Level: CLASSIFIED</p>
+                <p>• Access Fee: $100,000 USD</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Access Information */}
-          <div className="space-y-6">
-            {/* Payment Requirements */}
-            <Card className="bg-black/60 border-yellow-500/30 backdrop-blur-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-yellow-200">
-                  <DollarSign className="w-5 h-5" />
-                  <span>Access Requirements</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-400 mb-2">$100,000</div>
-                  <p className="text-yellow-200 text-sm">Security Clearance Fee</p>
+          <Card className="bg-slate-800/50 border-slate-600">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                <DollarSign className="h-5 w-5 mr-2" />
+                Investment Opportunity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="p-4 bg-green-900/20 border border-green-500 rounded">
+                  <h3 className="font-bold text-green-400 mb-2">Market Potential</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>Defense: $50T+</div>
+                    <div>Medical: $25T+</div>
+                    <div>Energy: $15T+</div>
+                    <div>Aerospace: $10T+</div>
+                  </div>
                 </div>
 
-                <div className="space-y-2 text-sm text-yellow-100">
+                <div className="p-4 bg-blue-900/20 border border-blue-500 rounded">
+                  <h3 className="font-bold text-blue-400 mb-2">Breakthrough Technologies</h3>
+                  <ul className="text-sm space-y-1">
+                    <li>• Quantum Gravity Propulsion</li>
+                    <li>• Directed Energy Weapons</li>
+                    <li>• Medical Nanotechnology</li>
+                    <li>• Temporal Manipulation</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-purple-900/20 border border-purple-500 rounded">
+                  <h3 className="font-bold text-purple-400 mb-2">Access Requirements</h3>
+                  <ul className="text-sm space-y-1">
+                    <li>• Security Clearance: $100,000</li>
+                    <li>• Minimum Investment: $1M</li>
+                    <li>• Background Check Required</li>
+                    <li>• NDA Mandatory</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-600">
+                <h3 className="font-bold mb-3">Authorized Contact</h3>
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span>Full technical specifications</span>
+                    <Phone className="h-4 w-4 text-green-400" />
+                    <a href="tel:859-888-9819" className="text-green-400 hover:text-green-300">
+                      (859) 888-9819
+                    </a>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span>Implementation roadmaps</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span>Investment opportunities</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span>Direct contact with development team</span>
+                    <Mail className="h-4 w-4 text-blue-400" />
+                    <a href="mailto:devin@agiledefensesystems.com" className="text-blue-400 hover:text-blue-300">
+                      devin@agiledefensesystems.com
+                    </a>
                   </div>
                 </div>
+                <p className="text-xs text-slate-500 mt-3">
+                  Devin Phillip Davis, MBA, PE
+                  <br />
+                  Agile Defense Systems, LLC
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Teaser Information */}
+        <div className="mt-12 max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">Revolutionary Capabilities</h2>
+            <p className="text-slate-300">Glimpse into the future of defense and medical technology</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="bg-slate-800/30 border-slate-600">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🛡️</div>
+                <h3 className="font-bold mb-2">Defense Systems</h3>
+                <p className="text-sm text-slate-400">
+                  Next-generation weapons and protection systems using quantum field manipulation
+                </p>
               </CardContent>
             </Card>
 
-            {/* Contact Information */}
-            <Card className="bg-black/60 border-blue-500/30 backdrop-blur-lg">
-              <CardHeader>
-                <CardTitle className="text-blue-200">Authorization Contact</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <p className="font-semibold text-white">Devin Phillip Davis, MBA, PE</p>
-                  <p className="text-blue-300 text-sm">Agile Defense Systems, LLC</p>
-                </div>
+            <Card className="bg-slate-800/30 border-slate-600">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🧬</div>
+                <h3 className="font-bold mb-2">Medical Breakthroughs</h3>
+                <p className="text-sm text-slate-400">
+                  Revolutionary treatments using tetrahedral dynamics and quantum biology
+                </p>
+              </CardContent>
+            </Card>
 
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => window.open("tel:859-888-9819")}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call for Access: (859) 888-9819
-                  </Button>
-
-                  <Button
-                    onClick={() => window.open("mailto:devin@agiledefensesystems.com?subject=SPECTRA Access Request")}
-                    variant="outline"
-                    className="w-full border-blue-500 text-blue-400 hover:bg-blue-500/10"
-                  >
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Authorization Request
-                  </Button>
-                </div>
+            <Card className="bg-slate-800/30 border-slate-600">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🚀</div>
+                <h3 className="font-bold mb-2">Aerospace Innovation</h3>
+                <p className="text-sm text-slate-400">
+                  Propulsion systems that manipulate space-time for interstellar travel
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Teaser Information */}
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="bg-black/40 border-green-500/30 backdrop-blur-lg">
-            <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-green-400 mb-2">Medical Breakthroughs</div>
-              <p className="text-green-200 text-sm">
-                Quantum-enhanced surgical precision, cellular regeneration, and disease eradication technologies
+        {/* Call to Action */}
+        <div className="mt-12 text-center">
+          <Card className="bg-gradient-to-r from-red-900/20 to-blue-900/20 border-slate-600 max-w-2xl mx-auto">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold mb-4">Ready to Change the World?</h3>
+              <p className="text-slate-300 mb-6">
+                Join us in developing technologies that will reshape defense, medicine, and space exploration. Contact
+                us today to discuss investment opportunities and security clearance.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild className="bg-green-600 hover:bg-green-700">
+                  <a href="tel:859-888-9819">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call Now
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-slate-600 text-white hover:bg-slate-700 bg-transparent"
+                >
+                  <a href="mailto:devin@agiledefensesystems.com">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email Us
+                  </a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-black/40 border-red-500/30 backdrop-blur-lg">
-            <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-red-400 mb-2">Defense Systems</div>
-              <p className="text-red-200 text-sm">
-                Next-generation weapons, armor, and tactical systems with unprecedented capabilities
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/40 border-purple-500/30 backdrop-blur-lg">
-            <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-2">$50T+ Market</div>
-              <p className="text-purple-200 text-sm">
-                Revolutionary technologies targeting trillion-dollar defense and healthcare markets
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 text-center text-xs text-slate-500">
-          © 2025 Agile Defense Systems, LLC. Classified technologies under development.
-          <br />
-          Unauthorized access attempts are monitored and logged.
         </div>
       </div>
     </div>
   )
 }
-
-export default PasswordProtectedSpectra
