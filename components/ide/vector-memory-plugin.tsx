@@ -1,17 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Brain, Clock, Tag, Star, Database } from "lucide-react"
+import { Search, Brain, Clock, Tag, Star, Database, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BioGlowText } from "./bio-glow-effects"
+import { useToast } from "@/hooks/use-toast"
 
 interface MemoryEntry {
   id: string
   content: string
-  embedding: number[]
+  embedding?: number[]
   metadata: {
     type: "code" | "mutation" | "conversation" | "insight"
     timestamp: Date
@@ -29,90 +30,184 @@ interface VectorMemoryPluginProps {
 
 export function VectorMemoryPlugin({ currentTheme, onMemorySelect }: VectorMemoryPluginProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [memories, setMemories] = useState<MemoryEntry[]>([
-    {
-      id: "1",
-      content: "organism SelfHealingAgent with autonomous monitoring and remediation capabilities",
-      embedding: [0.1, 0.2, 0.3], // Simplified for demo
-      metadata: {
-        type: "code",
-        timestamp: new Date(Date.now() - 3600000),
-        tags: ["self-healing", "autonomous", "monitoring"],
-        confidence: 0.95,
-        source: "SHIFT-Assist",
-      },
-      similarity: 0.92,
-    },
-    {
-      id: "2",
-      content: "Consciousness enhancement through recursive self-reflection patterns",
-      embedding: [0.2, 0.3, 0.4],
-      metadata: {
-        type: "insight",
-        timestamp: new Date(Date.now() - 7200000),
-        tags: ["consciousness", "self-reflection", "meta-cognition"],
-        confidence: 0.88,
-        source: "Consciousness Core",
-      },
-      similarity: 0.87,
-    },
-    {
-      id: "3",
-      content: "Quantum superposition optimization for parallel evolution paths",
-      embedding: [0.3, 0.4, 0.5],
-      metadata: {
-        type: "mutation",
-        timestamp: new Date(Date.now() - 1800000),
-        tags: ["quantum", "superposition", "evolution", "optimization"],
-        confidence: 0.91,
-        source: "Quantum Core",
-      },
-      similarity: 0.84,
-    },
-    {
-      id: "4",
-      content: "Security gene implementation for threat detection and auto-remediation",
-      embedding: [0.4, 0.5, 0.6],
-      metadata: {
-        type: "code",
-        timestamp: new Date(Date.now() - 5400000),
-        tags: ["security", "threat-detection", "auto-remediation"],
-        confidence: 0.93,
-        source: "Security Gene",
-      },
-      similarity: 0.79,
-    },
-  ])
-  const [filteredMemories, setFilteredMemories] = useState<MemoryEntry[]>(memories)
+  const [memories, setMemories] = useState<MemoryEntry[]>([])
+  const [filteredMemories, setFilteredMemories] = useState<MemoryEntry[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [isStoring, setIsStoring] = useState(false)
+  const [useSupabase, setUseSupabase] = useState(false)
+  const { toast } = useToast()
   const isBioGlow = currentTheme === "dna-lang-bio-glow"
 
+  // Initialize with sample data
   useEffect(() => {
-    // Simulate semantic search
-    if (searchQuery.trim()) {
-      const filtered = memories
-        .map((memory) => ({
-          ...memory,
-          similarity: calculateSimilarity(searchQuery, memory.content),
-        }))
-        .filter((memory) => memory.similarity > 0.3)
-        .sort((a, b) => b.similarity - a.similarity)
-      setFilteredMemories(filtered)
-    } else {
-      setFilteredMemories(memories.sort((a, b) => b.metadata.timestamp.getTime() - a.metadata.timestamp.getTime()))
-    }
-  }, [searchQuery, memories])
+    const sampleMemories: MemoryEntry[] = [
+      {
+        id: "1",
+        content: "organism SelfHealingAgent with autonomous monitoring and remediation capabilities",
+        metadata: {
+          type: "code",
+          timestamp: new Date(Date.now() - 3600000),
+          tags: ["self-healing", "autonomous", "monitoring"],
+          confidence: 0.95,
+          source: "SHIFT-Assist",
+        },
+        similarity: 0.92,
+      },
+      {
+        id: "2",
+        content: "Consciousness enhancement through recursive self-reflection patterns",
+        metadata: {
+          type: "insight",
+          timestamp: new Date(Date.now() - 7200000),
+          tags: ["consciousness", "self-reflection", "meta-cognition"],
+          confidence: 0.88,
+          source: "Consciousness Core",
+        },
+        similarity: 0.87,
+      },
+      {
+        id: "3",
+        content: "Quantum superposition optimization for parallel evolution paths",
+        metadata: {
+          type: "mutation",
+          timestamp: new Date(Date.now() - 1800000),
+          tags: ["quantum", "superposition", "evolution", "optimization"],
+          confidence: 0.91,
+          source: "Quantum Core",
+        },
+        similarity: 0.84,
+      },
+    ]
+    setMemories(sampleMemories)
+    setFilteredMemories(sampleMemories)
+  }, [])
 
-  const calculateSimilarity = (query: string, content: string): number => {
-    // Simplified similarity calculation
-    const queryWords = query.toLowerCase().split(" ")
-    const contentWords = content.toLowerCase().split(" ")
-    const matches = queryWords.filter((word) => contentWords.some((cWord) => cWord.includes(word)))
-    return matches.length / queryWords.length
+  const performSemanticSearch = async (query: string) => {
+    if (!query.trim()) {
+      setFilteredMemories(memories)
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const response = await fetch("/api/vector/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          limit: 10,
+          threshold: 0.3,
+          useSupabase,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Search failed")
+      }
+
+      const { results } = await response.json()
+
+      // Convert results to MemoryEntry format
+      const searchResults: MemoryEntry[] = results.map((result: any) => ({
+        id: result.id,
+        content: result.content,
+        similarity: result.similarity,
+        metadata: {
+          type: result.metadata?.type || "insight",
+          timestamp: new Date(result.metadata?.timestamp || Date.now()),
+          tags: result.metadata?.tags || [],
+          confidence: result.metadata?.confidence || 0.8,
+          source: result.metadata?.source || "Vector Search",
+        },
+      }))
+
+      setFilteredMemories(searchResults)
+
+      toast({
+        title: "Search Complete",
+        description: `Found ${searchResults.length} relevant memories`,
+      })
+    } catch (error) {
+      console.error("Search error:", error)
+      toast({
+        title: "Search Failed",
+        description: "Unable to perform semantic search. Using local search.",
+        variant: "destructive",
+      })
+
+      // Fallback to local search
+      const localResults = memories.filter(
+        (memory) =>
+          memory.content.toLowerCase().includes(query.toLowerCase()) ||
+          memory.metadata.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase())),
+      )
+      setFilteredMemories(localResults)
+    } finally {
+      setIsSearching(false)
+    }
   }
 
+  const storeMemory = async (content: string, metadata: Partial<MemoryEntry["metadata"]>) => {
+    setIsStoring(true)
+    try {
+      const response = await fetch("/api/vector/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content,
+          metadata: {
+            type: "insight",
+            tags: [],
+            confidence: 0.8,
+            source: "Manual Entry",
+            ...metadata,
+          },
+          useSupabase,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Storage failed")
+      }
+
+      const { id } = await response.json()
+
+      toast({
+        title: "Memory Stored",
+        description: `Successfully stored memory with ID: ${id}`,
+      })
+
+      // Refresh search results
+      if (searchQuery) {
+        await performSemanticSearch(searchQuery)
+      }
+    } catch (error) {
+      console.error("Storage error:", error)
+      toast({
+        title: "Storage Failed",
+        description: "Unable to store memory in vector database.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsStoring(false)
+    }
+  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performSemanticSearch(searchQuery)
+    }, 500) // Debounce search
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery, useSupabase])
+
   const getAllTags = () => {
-    const allTags = memories.flatMap((memory) => memory.metadata.tags)
+    const allTags = filteredMemories.flatMap((memory) => memory.metadata.tags)
     return [...new Set(allTags)]
   }
 
@@ -149,23 +244,30 @@ export function VectorMemoryPlugin({ currentTheme, onMemorySelect }: VectorMemor
           <Database className="h-4 w-4" />
           <span>Vector Memory</span>
           <Badge variant="outline" className="text-xs">
-            Supabase + Pinecone
+            {useSupabase ? "Supabase" : "Pinecone"}
           </Badge>
+          <Button size="sm" variant="ghost" onClick={() => setUseSupabase(!useSupabase)} className="h-6 text-xs">
+            Switch
+          </Button>
         </CardTitle>
       </CardHeader>
 
       <div className="p-4 border-b">
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          )}
           <Input
             placeholder="Semantic search across memories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 pr-10"
+            disabled={isSearching}
           />
         </div>
 
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 mb-2">
           {getAllTags()
             .slice(0, 8)
             .map((tag) => (
@@ -183,9 +285,27 @@ export function VectorMemoryPlugin({ currentTheme, onMemorySelect }: VectorMemor
               </Button>
             ))}
         </div>
+
+        <Button
+          size="sm"
+          onClick={() => storeMemory("Sample memory entry", { type: "insight", tags: ["test"] })}
+          disabled={isStoring}
+          className="w-full"
+        >
+          {isStoring ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Brain className="h-3 w-3 mr-1" />}
+          Store Test Memory
+        </Button>
       </div>
 
       <div className="flex-1 overflow-auto p-4 space-y-3">
+        {filteredMemories.length === 0 && searchQuery && !isSearching && (
+          <div className="text-center text-muted-foreground py-8">
+            <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>No memories found for "{searchQuery}"</p>
+            <p className="text-xs">Try a different search term or store new memories</p>
+          </div>
+        )}
+
         {filteredMemories.map((memory) => (
           <Card
             key={memory.id}

@@ -61,6 +61,96 @@ const sampleFileTree: FileNode[] = [
             path: "/organisms/quantum_processor.dna",
             content: "organism QuantumProcessor { ... }",
           },
+          {
+            id: "autonomous_finops_agent",
+            name: "autonomous_finops_agent.dna",
+            type: "file",
+            path: "/organisms/autonomous_finops_agent.dna",
+            content: `// DNA-Lang: Autonomous FinOps Agent
+// Purpose: Optimize cloud spend and resource allocation
+
+organism AutonomousFinOpsAgent {
+  purpose: "Automate cloud financial operations and cost optimization"
+  
+  state {
+    budget_compliance: float = 0.95;
+    resource_utilization: float = 0.70;
+    cost_efficiency: float = 0.85;
+    anomaly_detection_sensitivity: float = 0.7;
+  }
+
+  gene CostMonitor {
+    sense cloud_billing_data {
+      from google_cloud.billing_api();
+      from aws.cost_explorer();
+      returns BillingStream;
+    }
+    
+    function analyze_spend() -> CostReport {
+      data = cloud_billing_data.collect();
+      anomalies = detect_spikes(data, anomaly_detection_sensitivity);
+      return generate_report(data, anomalies);
+    }
+  }
+
+  gene ResourceOptimizer {
+    function optimize_resources(report: CostReport) -> OptimizationPlan {
+      if (report.anomalies.exists) {
+        express("💸 Cost anomaly detected: " + report.anomalies.description);
+        strategies = propose_strategies(report.anomalies);
+        return select_best_plan(strategies);
+      }
+      return no_action_plan();
+    }
+  }
+
+  gene PolicyEnforcer {
+    function enforce_policy(plan: OptimizationPlan) -> EnforcementResult {
+      if (plan.type == "scale_down") {
+        execute_scale_down(plan.target_service);
+        mutate(resource_utilization, +0.05);
+      } else if (plan.type == "right_size") {
+        execute_right_sizing(plan.target_vm);
+        mutate(cost_efficiency, +0.03);
+      }
+      return success_result();
+    }
+  }
+
+  workflow {
+    on start() {
+      express("💰 FinOps Agent initialized. Monitoring cloud spend...");
+    }
+    
+    while True {
+      report = CostMonitor.analyze_spend();
+      plan = ResourceOptimizer.optimize_resources(report);
+      
+      if (plan.action_required) {
+        result = PolicyEnforcer.enforce_policy(plan);
+        express("✅ Optimization applied: " + plan.description);
+      }
+      
+      // Continuous self-assessment
+      if (budget_compliance < 0.9) {
+        express("⚠️ Budget compliance low. Initiating deeper analysis.");
+        CostMonitor.re_evaluate_thresholds();
+      }
+    }
+  }
+
+  evolution {
+    fitness_goal {
+      maximize(budget_compliance + cost_efficiency);
+      minimize(resource_waste);
+    }
+    mutation_strategy {
+      adaptive_rate(0.02);
+      prioritize_cost_saving_genes();
+    }
+  }
+}`,
+          },
         ],
       },
       {
@@ -82,6 +172,62 @@ const sampleFileTree: FileNode[] = [
             type: "file",
             path: "/genes/neural_processor.gene",
             content: "gene neural_processor { ... }",
+          },
+          {
+            id: "threat_detection_gene",
+            name: "threat_detection.gene",
+            type: "file",
+            path: "/genes/threat_detection.gene",
+            content: `// DNA-Lang: Threat Detection Gene
+// Purpose: Identify and classify security threats
+
+gene ThreatDetectionGene {
+  input: EventStream;
+  output: ThreatAssessment;
+
+  state {
+    detection_accuracy: float = 0.92;
+    false_positive_rate: float = 0.05;
+    threat_database_version: string = "v3.1.2";
+  }
+
+  function analyze_event(event: EventData) -> ThreatAssessment {
+    // Pattern matching against known signatures
+    if (event.signature in threat_database.signatures) {
+      return create_assessment(event.signature, "Known Threat", 0.9);
+    }
+
+    // Anomaly detection using consciousness insights
+    if (event.behavior.deviates_from_norm(consciousness_core.baseline())) {
+      return create_assessment(event.behavior, "Behavioral Anomaly", 0.7);
+    }
+
+    // Quantum-enhanced threat prediction
+    if (quantum_core.predict_threat(event.data, 0.8)) {
+      return create_assessment(event.data, "Predicted Quantum Threat", 0.95);
+    }
+
+    return no_threat_detected();
+  }
+
+  function update_threat_database(new_signatures: SignatureList) {
+    threat_database.add(new_signatures);
+    mutate(detection_accuracy, +0.01);
+    update(threat_database_version, "latest");
+  }
+
+  evolution {
+    fitness_goal {
+      maximize(detection_accuracy);
+      minimize(false_positive_rate);
+    }
+    mutation_strategy {
+      adaptive_rate(0.01);
+      enhance_pattern_recognition();
+      improve_quantum_prediction_models();
+    }
+  }
+}`,
           },
         ],
       },

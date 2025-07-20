@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Import useRef
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -73,6 +73,8 @@ export default function DNALangIDE() {
   const [showMarketplace, setShowMarketplace] = useState(false)
   const [currentTheme, setCurrentTheme] = useState("dna-lang-dark")
   const [showBanner, setShowBanner] = useState(true)
+
+  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null) // Ref for interval ID
 
   const handleThemeChange = (theme: string) => {
     setCurrentTheme(theme)
@@ -246,24 +248,40 @@ organism SelfHealingAgent {
     setIsRunning(true)
     setOrganismState((prev) => ({ ...prev, isRunning: true }))
 
-    // Enhanced simulation with strategic brief concepts
-    setTimeout(() => {
+    // Clear any existing interval to prevent multiple intervals running
+    if (simulationIntervalRef.current) {
+      clearInterval(simulationIntervalRef.current)
+    }
+
+    // Simulate continuous evolution
+    simulationIntervalRef.current = setInterval(() => {
       setOrganismState((prev) => ({
         ...prev,
-        fitness: Math.min(1.0, prev.fitness + Math.random() * 0.15), // Higher improvement
-        consciousness: Math.min(1.0, prev.consciousness + Math.random() * 0.08),
-        quantumCoherence: Math.min(1.0, prev.quantumCoherence + Math.random() * 0.12),
+        fitness: Math.min(1.0, prev.fitness + Math.random() * 0.01), // Small, continuous improvement
+        consciousness: Math.min(1.0, prev.consciousness + Math.random() * 0.005),
+        quantumCoherence: Math.min(1.0, prev.quantumCoherence + Math.random() * 0.008),
         generation: prev.generation + 1,
       }))
-      setIsRunning(false)
-      setOrganismState((prev) => ({ ...prev, isRunning: false }))
-    }, 3000)
+    }, 1000) // Update every 1 second
   }
 
   const handleStopOrganism = () => {
+    if (simulationIntervalRef.current) {
+      clearInterval(simulationIntervalRef.current)
+      simulationIntervalRef.current = null
+    }
     setIsRunning(false)
     setOrganismState((prev) => ({ ...prev, isRunning: false }))
   }
+
+  // Cleanup interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current)
+      }
+    }
+  }, [])
 
   const handleDebugToggle = () => {
     setIsDebugging(!isDebugging)
@@ -507,7 +525,7 @@ organism SelfHealingAgent {
                 </TabsContent>
 
                 <TabsContent value="evolution" className="h-full mt-0">
-                  <EvolutionMonitor organismState={organismState} />
+                  <EvolutionMonitor organismState={organismState} isRunning={isRunning} />
                 </TabsContent>
 
                 <TabsContent value="quantum" className="h-full mt-0">

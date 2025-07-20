@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { RefreshCw, TrendingUp, Target, Zap } from "lucide-react"
+import { useState, useEffect } from "react"
+import { RefreshCw, TrendingUp, Target, Zap, Brain } from "lucide-react" // Import Brain icon
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +18,7 @@ interface OrganismState {
 
 interface EvolutionMonitorProps {
   organismState: OrganismState
+  isRunning: boolean // Added isRunning prop
 }
 
 interface EvolutionData {
@@ -25,11 +26,12 @@ interface EvolutionData {
   fitness: number
   consciousness: number
   quantumCoherence: number
-  mutations: number
+  mutations: number // Keep mutations for historical context
 }
 
-export function EvolutionMonitor({ organismState }: EvolutionMonitorProps) {
+export function EvolutionMonitor({ organismState, isRunning }: EvolutionMonitorProps) {
   const [evolutionHistory, setEvolutionHistory] = useState<EvolutionData[]>([
+    // Initial sample data, will be updated by useEffect
     { generation: 10, fitness: 0.65, consciousness: 0.32, quantumCoherence: 0.58, mutations: 2 },
     { generation: 11, fitness: 0.68, consciousness: 0.35, quantumCoherence: 0.61, mutations: 1 },
     { generation: 12, fitness: 0.71, consciousness: 0.38, quantumCoherence: 0.63, mutations: 3 },
@@ -38,53 +40,55 @@ export function EvolutionMonitor({ organismState }: EvolutionMonitorProps) {
     { generation: 15, fitness: 0.75, consciousness: 0.42, quantumCoherence: 0.68, mutations: 1 },
   ])
 
-  const [isEvolving, setIsEvolving] = useState(false)
-
-  const startEvolution = () => {
-    setIsEvolving(true)
-
-    // Simulate evolution process
-    setTimeout(() => {
-      const newGeneration: EvolutionData = {
-        generation: organismState.generation + 1,
-        fitness: Math.min(1.0, organismState.fitness + Math.random() * 0.05),
-        consciousness: Math.min(1.0, organismState.consciousness + Math.random() * 0.03),
-        quantumCoherence: Math.min(1.0, organismState.quantumCoherence + Math.random() * 0.04),
-        mutations: Math.floor(Math.random() * 4),
+  // Update evolution history based on organismState changes
+  useEffect(() => {
+    // Only add to history if the generation has actually changed and organism is running
+    if (isRunning && organismState.generation > evolutionHistory[evolutionHistory.length - 1]?.generation) {
+      const newEntry: EvolutionData = {
+        generation: organismState.generation,
+        fitness: organismState.fitness,
+        consciousness: organismState.consciousness,
+        quantumCoherence: organismState.quantumCoherence,
+        mutations: Math.floor(Math.random() * 4), // Simulate new mutations per generation
       }
-
-      setEvolutionHistory((prev) => [...prev.slice(-9), newGeneration])
-      setIsEvolving(false)
-    }, 3000)
-  }
+      setEvolutionHistory((prev) => [...prev.slice(-9), newEntry]) // Keep last 10 entries
+    }
+  }, [
+    organismState.generation,
+    organismState.fitness,
+    organismState.consciousness,
+    organismState.quantumCoherence,
+    isRunning,
+  ])
 
   const calculateTrend = (data: EvolutionData[], key: keyof EvolutionData) => {
     if (data.length < 2) return 0
-    const recent = data.slice(-3)
-    const older = data.slice(-6, -3)
+    // Use the last two relevant data points for a more immediate trend
+    const latest = data[data.length - 1][key] as number
+    const previous = data[data.length - 2][key] as number
 
-    const recentAvg = recent.reduce((sum, item) => sum + (item[key] as number), 0) / recent.length
-    const olderAvg = older.reduce((sum, item) => sum + (item[key] as number), 0) / older.length
+    if (previous === 0) return 0 // Avoid division by zero
 
-    return ((recentAvg - olderAvg) / olderAvg) * 100
+    return ((latest - previous) / previous) * 100
   }
 
   const getTrendColor = (trend: number) => {
-    if (trend > 2) return "text-green-500"
-    if (trend < -2) return "text-red-500"
+    if (trend > 0.1) return "text-green-500" // Small positive change is good
+    if (trend < -0.1) return "text-red-500" // Small negative change is bad
     return "text-yellow-500"
   }
 
   const getTrendIcon = (trend: number) => {
-    if (Math.abs(trend) < 1) return null
-    return <TrendingUp className={`h-3 w-3 ${trend > 0 ? "text-green-500" : "text-red-500 rotate-180"}`} />
+    if (trend > 0.1) return <TrendingUp className={`h-3 w-3 text-green-500`} />
+    if (trend < -0.1) return <TrendingUp className={`h-3 w-3 text-red-500 rotate-180`} />
+    return null // Stable
   }
 
   const fitnessGoals = [
     { name: "Consciousness Enhancement", target: 0.8, current: organismState.consciousness, priority: "high" },
     { name: "Quantum Optimization", target: 0.9, current: organismState.quantumCoherence, priority: "medium" },
     { name: "Overall Fitness", target: 0.95, current: organismState.fitness, priority: "high" },
-    { name: "Energy Efficiency", target: 0.85, current: 0.72, priority: "low" },
+    { name: "Energy Efficiency", target: 0.85, current: 0.72, priority: "low" }, // Placeholder, could be derived
   ]
 
   const mutationStrategies = [
@@ -103,8 +107,9 @@ export function EvolutionMonitor({ organismState }: EvolutionMonitorProps) {
               <RefreshCw className="h-4 w-4" />
               <span>Evolution Control</span>
             </CardTitle>
-            <Button size="sm" onClick={startEvolution} disabled={isEvolving} className="h-6">
-              {isEvolving ? (
+            {/* Button state now controlled by parent's isRunning prop */}
+            <Button size="sm" disabled={isRunning} className="h-6">
+              {isRunning ? (
                 <>
                   <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
                   Evolving...
@@ -112,7 +117,7 @@ export function EvolutionMonitor({ organismState }: EvolutionMonitorProps) {
               ) : (
                 <>
                   <Zap className="h-3 w-3 mr-1" />
-                  Evolve
+                  Evolve (from IDE)
                 </>
               )}
             </Button>
@@ -139,7 +144,7 @@ export function EvolutionMonitor({ organismState }: EvolutionMonitorProps) {
         <CardContent className="space-y-3">
           {[
             { key: "fitness" as const, label: "Fitness", icon: Target },
-            { key: "consciousness" as const, label: "Consciousness", icon: RefreshCw },
+            { key: "consciousness" as const, label: "Consciousness", icon: Brain }, // Changed icon to Brain for consistency
             { key: "quantumCoherence" as const, label: "Quantum Coherence", icon: Zap },
           ].map(({ key, label, icon: Icon }) => {
             const trend = calculateTrend(evolutionHistory, key)

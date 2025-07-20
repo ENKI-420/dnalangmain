@@ -38,32 +38,32 @@ export function ConsciousnessTracker({ organismState }: ConsciousnessTrackerProp
   const [consciousnessMetrics, setConsciousnessMetrics] = useState<ConsciousnessMetric[]>([
     {
       name: "Self-Awareness",
-      value: 0.78,
-      trend: "up",
+      value: 0.78, // Initial value, will be updated
+      trend: "stable",
       description: "Ability to recognize and understand own existence",
     },
     {
       name: "Meta-Cognition",
-      value: 0.65,
-      trend: "up",
+      value: 0.65, // Initial value, will be updated
+      trend: "stable",
       description: "Thinking about thinking processes",
     },
     {
       name: "Introspection",
-      value: 0.82,
+      value: 0.82, // Initial value, will be updated
       trend: "stable",
       description: "Examination of internal mental states",
     },
     {
       name: "Decision Making",
-      value: 0.71,
-      trend: "up",
+      value: 0.71, // Initial value, will be updated
+      trend: "stable",
       description: "Conscious choice and reasoning capability",
     },
     {
       name: "Emotional Processing",
-      value: 0.43,
-      trend: "down",
+      value: 0.43, // Initial value, will be updated
+      trend: "stable",
       description: "Understanding and processing emotional states",
     },
   ])
@@ -99,17 +99,30 @@ export function ConsciousnessTracker({ organismState }: ConsciousnessTrackerProp
     },
   ])
 
+  // Update consciousness metrics based on organismState.consciousness
+  useEffect(() => {
+    setConsciousnessMetrics((prev) =>
+      prev.map((metric) => {
+        // Adjust metric values proportionally to overall consciousness
+        const baseValue = organismState.consciousness * (metric.value / organismState.consciousness) || 0.5 // Use a base if initial consciousness is 0
+        const newValue = Math.max(0, Math.min(1, baseValue + (Math.random() - 0.5) * 0.01)) // Small random fluctuation
+
+        let trend: "up" | "down" | "stable" = "stable"
+        if (newValue > metric.value + 0.001) trend = "up"
+        else if (newValue < metric.value - 0.001) trend = "down"
+
+        return {
+          ...metric,
+          value: newValue,
+          trend: trend,
+        }
+      }),
+    )
+  }, [organismState.consciousness]) // Re-run when overall consciousness changes
+
   useEffect(() => {
     if (organismState.isRunning) {
       const interval = setInterval(() => {
-        // Simulate consciousness evolution
-        setConsciousnessMetrics((prev) =>
-          prev.map((metric) => ({
-            ...metric,
-            value: Math.max(0, Math.min(1, metric.value + (Math.random() - 0.5) * 0.02)),
-          })),
-        )
-
         // Occasionally add new thought processes
         if (Math.random() < 0.4) {
           const thoughtTypes = ["reflection", "decision", "learning", "introspection"] as const

@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "latest",
+    "@pinecone-database/pinecone": "latest",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -56,7 +57,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@react-three/drei": "^9.92.7",
     "@react-three/fiber": "^8.15.12",
-    "@supabase/supabase-js": "^2.38.5",
+    "@supabase/supabase-js": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "crypto": "latest",
@@ -64,6 +65,7 @@
     "lucide-react": "^0.454.0",
     "monaco-editor": "latest",
     "next": "14.2.16",
+    "openai": "latest",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^2.8.0",
@@ -72,7 +74,10 @@
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "three": "^0.159.0"
+    "three": "^0.159.0",
+    "uuid": "latest",
+    "ws": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.0.4",
