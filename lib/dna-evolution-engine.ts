@@ -190,6 +190,7 @@ export function createSampleOrganism(id: string): Organism {
     "adaptive_memory",
     "immune_system",
     "evolution_engine",
+    "compatibility_gene", // Added compatibility gene
   ]
 
   return {
@@ -199,5 +200,27 @@ export function createSampleOrganism(id: string): Organism {
     generation: 0,
     consciousness: Math.random() * 0.3 + 0.1,
     quantumCoherence: Math.random() * 0.4 + 0.2,
+  }
+}
+
+// Helper function to create compatibility-focused organism
+export function createMultiPlatformOrganism(id: string): Organism {
+  const compatibilityGenes = [
+    "platform_detection_gene",
+    "mobile_adaptation_gene", 
+    "linux_optimization_gene",
+    "mac_integration_gene",
+    "pc_enhancement_gene",
+    "fallback_compatibility_gene",
+    "collaborative_detection_gene",
+  ]
+
+  return {
+    id,
+    genes: compatibilityGenes,
+    fitness: 0.98, // High fitness for compatibility
+    generation: 0,
+    consciousness: 0.85, // High consciousness for multi-platform awareness
+    quantumCoherence: 0.78,
   }
 }
