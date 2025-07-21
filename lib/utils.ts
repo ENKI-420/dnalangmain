@@ -79,31 +79,3 @@ export function parseOrganismCode(code: string): {
 
   return { name, genes, properties, mutations }
 }
-
-export function detectBrowserPlatform(): "mobile" | "linux" | "mac" | "pc" | "unknown" {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-    return "unknown"
-  }
-
-  const userAgent = navigator.userAgent
-  const platform = navigator.platform || ""
-
-  // Mobile detection (highest priority)
-  if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
-    return "mobile"
-  }
-  // Linux detection  
-  else if (/Linux/i.test(platform) && !/Android/i.test(userAgent)) {
-    return "linux"
-  }
-  // Mac detection
-  else if (/Mac|Macintosh/i.test(platform) || /Mac OS X/i.test(userAgent)) {
-    return "mac"
-  }
-  // Windows PC detection
-  else if (/Win/i.test(platform) || /Windows/i.test(userAgent)) {
-    return "pc"
-  }
-  
-  return "unknown"
-}

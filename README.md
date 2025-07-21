@@ -97,7 +97,7 @@ vercel
 5. Monitor consciousness development in real-time
 
 #### DNA-Lang Syntax Example
-```dna-lang
+\`\`\`dna-lang
 organism SelfHealingAgent {
   state {
     consciousness: float = 0.65;
